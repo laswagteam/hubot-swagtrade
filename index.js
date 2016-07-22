@@ -11,7 +11,7 @@ module.exports = function(robot) {
             if(!error && response.statusCode == 200) {
 
                 var data = JSON.parse(body);
-                var value = eth_usd['eth_usd']['sell']
+                var value = data.eth_usd.sell
                 var reply = '';
 
                 config.forEach(function(mofo) {

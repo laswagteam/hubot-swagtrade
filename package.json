@@ -1,0 +1,19 @@
+{
+  "name": "hubot-swagtrade",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/laswagteam/hubot-swagtrade.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/laswagteam/hubot-swagtrade/issues"
+  },
+  "homepage": "https://github.com/laswagteam/hubot-swagtrade#readme"
+}

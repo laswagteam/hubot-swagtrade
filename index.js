@@ -19,10 +19,10 @@ module.exports = function(robot) {
                     var now = mofo.amount*value;
                     var win = Math.round((now-init)*100)/100;
                     if(win >= 0){
-                        reply += mofo.name + ' : +$'+ win +'.\n';
+                        reply += mofo.name + ' : +$'+ win +'\n';
                     }
                     else{
-                        reply += mofo.name + ' : -$'+ (-win) +'.\n';
+                        reply += mofo.name + ' : -$'+ (-win) +'\n';
                     }
                 });
 

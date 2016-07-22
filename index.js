@@ -28,7 +28,7 @@ module.exports = function(robot) {
 
                 msg.send(reply);
             } else {
-                msg.reply(error);
+                msg.send(error);
             }
         });
     });

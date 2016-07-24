@@ -18,6 +18,7 @@ module.exports = function(robot) {
                     var init = mofo.amount*mofo.value;
                     var now = mofo.amount*value;
                     var win = Math.round((now-init)*100)/100;
+                    win += mofo.already;
                     if(win >= 0){
                         reply += mofo.name + ' : +$'+ win +'\n';
                     }

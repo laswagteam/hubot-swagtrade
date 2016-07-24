@@ -1,5 +1,6 @@
 [{
     "name": "agix",
     "amount": 10,
-    "value": 10
+    "value": 10,
+    "already": 0
 }]

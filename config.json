@@ -1,6 +1,11 @@
 [{
     "name": "agix",
-    "amount": 10,
-    "value": 10,
-    "already": 0
+    "transactions":[
+        {
+            "type": "eth",
+            "amount": 10,
+            "value": 10,
+            "sold": -1
+        }
+    ]
 }]

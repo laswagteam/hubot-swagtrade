@@ -4,9 +4,8 @@ module.exports = function(robot) {
     fs = require('fs'),
     api_url = 'https://btc-e.com/api/3/ticker/eth_usd-btc_usd';
 
-    var config = JSON.parse(fs.readFileSync(process.env.SWAG_TRADE_CONFIG||'config.json'));
-
     robot.respond(/(money)/i, function(msg) {
+        var config = JSON.parse(fs.readFileSync(process.env.SWAG_TRADE_CONFIG||'config.json'));
         request(api_url, function (error, response, body) {
             if(!error && response.statusCode == 200) {
 

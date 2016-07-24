@@ -20,7 +20,7 @@ module.exports = function(robot) {
                     var win = 0;
                     mofo.transactions.forEach(function(transaction){
                         var now;
-                        var init = transaction.amount*transaction.value;
+                        var init = transaction.amount*transaction.bought;
                         if(transaction.sold < 0){
                             if(transaction.type === 'eth'){
                                 now = transaction.amount*eth;

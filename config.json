@@ -4,7 +4,7 @@
         {
             "type": "eth",
             "amount": 10,
-            "value": 10,
+            "bought": 10,
             "sold": -1
         }
     ]

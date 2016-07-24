@@ -13,8 +13,8 @@ module.exports = function(robot) {
                 var data = JSON.parse(body);
                 var eth = data.eth_usd.sell
                 var btc = data.btc_usd.sell
-                var reply = 'ETH = $ '+eth+'\n';
-                reply += 'BTC = $ '+btc+'\n';
+                var reply = 'ETH = $'+eth+'\n';
+                reply += 'BTC = $'+btc+'\n';
 
                 config.forEach(function(mofo) {
                     var win = 0;

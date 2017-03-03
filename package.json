@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/laswagteam/hubot-swagtrade/issues"
   },
-  "homepage": "https://github.com/laswagteam/hubot-swagtrade#readme"
+  "homepage": "https://github.com/laswagteam/hubot-swagtrade#readme",
+  "dependencies": {
+    "request": "^2.79.0"
+  }
 }

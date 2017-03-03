@@ -18,7 +18,7 @@ module.exports = function(robot) {
                 };
 
                 let reply = 'ETH = $'+price.eth+'\n';
-                reply += 'BTC = $'+price.eth+'\n';
+                reply += 'BTC = $'+price.btc+'\n';
 
                 config.forEach(function(mofo) {
   

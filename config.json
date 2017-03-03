@@ -1,11 +1,13 @@
-[{
+[
+  {
     "name": "agix",
-    "transactions":[
-        {
-            "currency": "eth",
-            "type": "buy",
-            "volume": 10,
-            "rate": 10,
-        }
+    "transactions": [
+      {
+        "currency": "eth",
+        "type": "buy",
+        "volume": 10,
+        "rate": 10
+      }
     ]
-}]
+  }
+]

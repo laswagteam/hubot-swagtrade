@@ -2,10 +2,10 @@
     "name": "agix",
     "transactions":[
         {
-            "type": "eth",
-            "amount": 10,
-            "bought": 10,
-            "sold": -1
+            "currency": "eth",
+            "type": "buy",
+            "volume": 10,
+            "rate": 10,
         }
     ]
 }]

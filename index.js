@@ -10,38 +10,39 @@ module.exports = function(robot) {
             if(!error && response.statusCode == 200) {
 
                 var data = JSON.parse(body);
-                var eth = data.eth_usd.sell
-                var btc = data.btc_usd.sell
-                var reply = 'ETH = $'+eth+'\n';
-                reply += 'BTC = $'+btc+'\n';
+
+                const price = {
+                    usd: 1,
+                    eth: data.eth_usd.sell,
+                    btc: data.btc_usd.sell,
+                };
+
+                let reply = 'ETH = $'+price.eth+'\n';
+                reply += 'BTC = $'+price.eth+'\n';
 
                 config.forEach(function(mofo) {
-                    var win = 0;
-                    mofo.transactions.forEach(function(transaction){
-                        var now;
-                        var init = transaction.amount*transaction.bought;
-                        if(transaction.sold < 0){
-                            if(transaction.type === 'eth'){
-                                now = transaction.amount*eth;
-                            }
-                            else if(transaction.type === 'btc'){
-                                now = transaction.amount*btc;
-                            }
-                        }
-                        else{
-                           now = transaction.amount*transaction.sold;
-                        }
+  
+                  const balance = { usd : 0, btc: 0, eth: 0 };
 
-                        win += (now-init);
-                    });
-                    var round_win = Math.round((win)*100)/100;
+                  mofo.transactions.forEach(function(transaction) {
+                    const factor = transaction.type === 'buy' ? 1 : -1;
+                    balance.usd = balance.usd + (-factor * transaction.volume * transaction.rate);
+                    balance[transaction.currency] = balance[transaction.currency] + (factor * transaction.volume);
+                  });
+                  
+                  let final_usd_balance = 0;
+                  Object.keys(balance).forEach((currency) => {
+                    final_usd_balance += balance[currency] * price[currency];
+                  })
 
-                    if(round_win >= 0){
-                        reply += mofo.name + ' : +$'+ round_win +'\n';
-                    }
-                    else{
-                        reply += mofo.name + ' : -$'+ (-round_win) +'\n';
-                    }
+                  final_usd_balance = Math.round((final_usd_balance)*100)/100;
+
+                  if(final_usd_balance >= 0){
+                    reply += mofo.name + ' : +$'+ final_usd_balance +' :juppedealwithit:\n';
+                  }
+                  else{
+                    reply += mofo.name + ' : -$'+ (-final_usd_balance) +' :nelson:\n';
+                  }
                 });
 
                 msg.send(reply);

@@ -60,7 +60,7 @@ module.exports = robot => {
   robot.respond(/(money)/i, (msg) => {
     return getExchangeRates()
       .then(howMuchDidTheMofosWin)
-      .then(msg.send)
-      .catch(msg.send);
+      .then(reply => msg.send(reply))
+      .catch(error => msg.send(error));
   });
 };

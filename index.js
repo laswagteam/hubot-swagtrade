@@ -2,7 +2,7 @@ const fs = require('fs');
 const request = require('request');
 
 const { SWAG_TRADE_CONFIG = 'config.json' } = process.env;
-const API_URL = 'https://btc-e.com/api/3/ticker/eth_usd-btc_usd';
+const API_URL = 'https://btc-e.com/api/3/ticker/eth_usd-btc_usd-ltc_usd';
 
 function getExchangeRates() {
   return new Promise((resolve, reject) => {

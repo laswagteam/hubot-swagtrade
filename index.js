@@ -11,11 +11,12 @@ function getExchangeRates() {
         throw error || new Error('Unknow error');
       }
 
-      const { eth_usd, btc_usd } = JSON.parse(body);
+      const { eth_usd, btc_usd, ltc_usd } = JSON.parse(body);
       resolve({
         usd: 1,
         eth: eth_usd.sell,
         btc: btc_usd.sell,
+        ltc: ltc_usd.sell,
       });
     });
   });
@@ -23,14 +24,15 @@ function getExchangeRates() {
 
 function howMuchDidTheMofosWin(price) {
   const mofos = JSON.parse(fs.readFileSync(SWAG_TRADE_CONFIG));
-  const { eth, btc } = price;
+  const { eth, btc, ltc } = price;
   const reply = [
     `> ETH = ${eth}`,
     `> BTC = ${btc}`,
+    `> LTC = ${ltc}`,
   ];
 
   mofos.forEach(({ name, transactions }) => {
-    const balance = { usd : 0, btc: 0, eth: 0 };
+    const balance = { usd : 0, btc: 0, eth: 0, ltc: 0 };
 
     transactions.forEach(transaction => {
       const { currency, type, volume, rate } = transaction;

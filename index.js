@@ -1,5 +1,6 @@
 const fs = require('fs');
 const request = require('request');
+const accounting = require('accounting');
 
 const { SWAG_TRADE_CONFIG = 'config.json' } = process.env;
 const API_URL = 'https://api.coinmarketcap.com/v1/ticker/';
@@ -13,7 +14,7 @@ function getExchangeRates() {
       const allTheCoins = JSON.parse(body);
       const simplified = {};
       allTheCoins.forEach(coin => {
-        simplified[coin.id] = {name: coin.name, price: parseFloat(coin.price_usd)};
+        simplified[coin.id] = {name: coin.symbol, price: parseFloat(coin.price_usd)};
       });
       resolve(simplified);
     });
@@ -22,6 +23,9 @@ function getExchangeRates() {
 
 function howMuchDidTheMofosWin(prices) {
   const mofos = JSON.parse(fs.readFileSync(SWAG_TRADE_CONFIG));
+  const mofosWinnings = [];
+  const mofosNames = [];
+  const currencyPrices = [];
   const reply = [];
 
   const currencies = {};
@@ -43,22 +47,27 @@ function howMuchDidTheMofosWin(prices) {
       Object.values(balance).reduce((a, b) => a + b, 0) * 100
     ) / 100;
 
-    if (total >= 0) {
-      reply.push(`> ${name} : +${total} :juppedealwithit:`);
-    } else {
-      reply.push(`> ${name} : -${-total} :nelson:`);
-    }
+    mofosWinnings.push(total);
+    mofosNames.push(name);
   });
-
+  const mofosWinningsFormatted = accounting.formatColumn(mofosWinnings, "$ ")
   const currenciesReply = [];
 
   Object.keys(currencies).forEach(currency => {
-    currenciesReply.push(`> ${prices[currency].name} = ${prices[currency].price}`);
+    currencyPrices.push(prices[currency].price);
   });
 
-  return currenciesReply.join('\n')+'\n'+reply.join('\n');
-}
+  const currencyPricesFormatted = accounting.formatColumn(currencyPrices, "$ ", 4);
+  Object.keys(currencies).forEach((currency, i) => {
+    currenciesReply.push(`${prices[currency].name} = ${currencyPricesFormatted[i]}`);
+  });
 
+  for(let i = 0; i < mofosNames.length; i++){
+    reply.push(`${mofosNames[i]} : ${mofosWinningsFormatted[i]}`);
+  }
+
+  return '```'+currenciesReply.join('\n')+'\n---\n'+reply.join('\n')+'```';
+}
 
 module.exports = robot => {
   robot.respond(/(money)/i, (msg) => {

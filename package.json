@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/laswagteam/hubot-swagtrade#readme",
   "dependencies": {
+    "accounting": "^0.4.1",
     "request": "^2.79.0"
   }
 }

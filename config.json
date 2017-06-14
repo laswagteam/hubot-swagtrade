@@ -3,7 +3,7 @@
     "name": "agix",
     "transactions": [
       {
-        "currency": "eth",
+        "currency": "ethereum",
         "type": "buy",
         "volume": 10,
         "rate": 10

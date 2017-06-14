@@ -2,7 +2,7 @@ const fs = require('fs');
 const request = require('request');
 
 const { SWAG_TRADE_CONFIG = 'config.json' } = process.env;
-const API_URL = 'https://btc-e.com/api/3/ticker/eth_usd-btc_usd-ltc_usd';
+const API_URL = 'https://api.coinmarketcap.com/v1/ticker/';
 
 function getExchangeRates() {
   return new Promise((resolve, reject) => {
@@ -10,35 +10,33 @@ function getExchangeRates() {
       if (error || statusCode !== 200) {
         throw error || new Error('Unknow error');
       }
-
-      const { eth_usd, btc_usd, ltc_usd } = JSON.parse(body);
-      resolve({
-        usd: 1,
-        eth: eth_usd.sell,
-        btc: btc_usd.sell,
-        ltc: ltc_usd.sell,
+      const allTheCoins = JSON.parse(body);
+      const simplified = {};
+      allTheCoins.forEach(coin => {
+        simplified[coin.id] = {name: coin.name, price: parseFloat(coin.price_usd)};
       });
+      resolve(simplified);
     });
   });
 }
 
-function howMuchDidTheMofosWin(price) {
+function howMuchDidTheMofosWin(prices) {
   const mofos = JSON.parse(fs.readFileSync(SWAG_TRADE_CONFIG));
-  const { eth, btc, ltc } = price;
-  const reply = [
-    `> ETH = ${eth}`,
-    `> BTC = ${btc}`,
-    `> LTC = ${ltc}`,
-  ];
+  const reply = [];
+
+  const currencies = {};
 
   mofos.forEach(({ name, transactions }) => {
-    const balance = { usd : 0, btc: 0, eth: 0, ltc: 0 };
-
+    const balance = {usd: 0};
     transactions.forEach(transaction => {
       const { currency, type, volume, rate } = transaction;
       const factor = type === 'buy' ? 1 : -1;
+      if(typeof balance[currency] === 'undefined'){
+        balance[currency] = 0;
+      }
       balance.usd = balance.usd + (-factor * volume * rate);
-      balance[currency] = balance[currency] + (factor * volume * price[currency]);
+      balance[currency] = balance[currency] + (factor * volume * prices[currency].price);
+      currencies[currency] = true;
     });
 
     const total = Math.round(
@@ -52,7 +50,13 @@ function howMuchDidTheMofosWin(price) {
     }
   });
 
-  return reply.join('\n');
+  const currenciesReply = [];
+
+  Object.keys(currencies).forEach(currency => {
+    currenciesReply.push(`> ${prices[currency].name} = ${prices[currency].price}`);
+  });
+
+  return currenciesReply.join('\n')+'\n'+reply.join('\n');
 }
 
 

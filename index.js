@@ -74,10 +74,36 @@ function howMuchDidTheMofosWin(prices) {
   return '```'+currenciesReply.join('\n')+'\n---\n'+reply.join('\n')+'```';
 }
 
+function howMuchDidTheMofosOwn(prices) {
+  const mofos = JSON.parse(fs.readFileSync(SWAG_TRADE_CONFIG));
+
+  const output = mofos.map(({ name, transactions }) => {
+    const balance = transactions.reduce((memo, transaction) => {
+      const { currency, type, volume, rate } = transaction;
+      const factor = type === 'buy' ? 1 : -1;
+      memo[currency] = (memo[currency] || 0) + (factor * volume);
+      return memo;
+    }, {});
+
+    const formattedAmounts = accounting.formatColumn(Object.values(balance), '', 8);
+    const lines = Object.keys(balance).map((currency, i) => `  ${rightPad(prices[currency].name)}: ${formattedAmounts[i].replace(/\.?0+$/, '')}`);
+    return `${name}:\n${lines.join('\n')}`
+  });
+
+  return '```'+output.join('\n')+'```';
+}
+
 module.exports = robot => {
   robot.respond(/(money)/i, (msg) => {
     return getExchangeRates()
       .then(howMuchDidTheMofosWin)
+      .then(reply => msg.send(reply))
+      .catch(error => msg.send(error));
+  });
+
+  robot.respond(/(balances)/i, (msg) => {
+    return getExchangeRates()
+      .then(howMuchDidTheMofosOwn)
       .then(reply => msg.send(reply))
       .catch(error => msg.send(error));
   });

@@ -5,6 +5,11 @@ const accounting = require('accounting');
 const { SWAG_TRADE_CONFIG = 'config.json' } = process.env;
 const API_URL = 'https://api.coinmarketcap.com/v1/ticker/';
 
+function rightPad(string, length = 3, char = ' ') {
+  const padLength = Math.max(0, length - string.length);
+  return `${string}${char.repeat(padLength)}`;
+}
+
 function getExchangeRates() {
   return new Promise((resolve, reject) => {
     request(API_URL, (error, { statusCode }, body) => {
@@ -59,7 +64,7 @@ function howMuchDidTheMofosWin(prices) {
 
   const currencyPricesFormatted = accounting.formatColumn(currencyPrices, "$ ", 4);
   Object.keys(currencies).forEach((currency, i) => {
-    currenciesReply.push(`${prices[currency].name} = ${currencyPricesFormatted[i]}`);
+    currenciesReply.push(`${rightPad(prices[currency].name)} = ${currencyPricesFormatted[i]}`);
   });
 
   for(let i = 0; i < mofosNames.length; i++){

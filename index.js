@@ -98,13 +98,13 @@ module.exports = robot => {
     return getExchangeRates()
       .then(howMuchDidTheMofosWin)
       .then(reply => msg.send(reply))
-      .catch(error => msg.send(error));
+      .catch(error => msg.send(error.message));
   });
 
   robot.respond(/(balances)/i, (msg) => {
     return getExchangeRates()
       .then(howMuchDidTheMofosOwn)
       .then(reply => msg.send(reply))
-      .catch(error => msg.send(error));
+      .catch(error => msg.send(error.message));
   });
 };

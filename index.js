@@ -19,7 +19,10 @@ function getExchangeRates() {
       const allTheCoins = JSON.parse(body);
       const simplified = {};
       allTheCoins.forEach(coin => {
-        simplified[coin.id] = {name: coin.symbol, price: parseFloat(coin.price_usd)};
+        simplified[coin.id] = {
+          name: coin.symbol,
+          price: parseFloat(coin.price_usd),
+        };
       });
       resolve(simplified);
     });
@@ -36,42 +39,52 @@ function howMuchDidTheMofosWin(prices) {
   const currencies = {};
 
   mofos.forEach(({ name, transactions }) => {
-    const balance = {usd: 0};
+    const balance = { usd: 0 };
     transactions.forEach(transaction => {
       const { currency, type, volume, rate } = transaction;
       const factor = type === 'buy' ? 1 : -1;
-      if(typeof balance[currency] === 'undefined'){
+      if (typeof balance[currency] === 'undefined') {
         balance[currency] = 0;
       }
-      balance.usd = balance.usd + (-factor * volume * rate);
-      balance[currency] = balance[currency] + (factor * volume * prices[currency].price);
+      balance.usd = balance.usd + -factor * volume * rate;
+      const price = prices[currency] ? prices[currency].price : 0;
+      balance[currency] = balance[currency] + factor * volume * price;
       currencies[currency] = true;
     });
 
-    const total = Math.round(
-      Object.values(balance).reduce((a, b) => a + b, 0) * 100
-    ) / 100;
+    const total =
+      Math.round(Object.values(balance).reduce((a, b) => a + b, 0) * 100) / 100;
 
     mofosWinnings.push(total);
     mofosNames.push(name);
   });
-  const mofosWinningsFormatted = accounting.formatColumn(mofosWinnings, "$ ")
+  const mofosWinningsFormatted = accounting.formatColumn(mofosWinnings, '$ ');
   const currenciesReply = [];
 
   Object.keys(currencies).forEach(currency => {
-    currencyPrices.push(prices[currency].price);
+    const price = prices[currency] ? prices[currency].price : 0;
+    currencyPrices.push(price);
   });
 
-  const currencyPricesFormatted = accounting.formatColumn(currencyPrices, "$ ", 4);
+  const currencyPricesFormatted = accounting.formatColumn(
+    currencyPrices,
+    '$ ',
+    4,
+  );
   Object.keys(currencies).forEach((currency, i) => {
-    currenciesReply.push(`${rightPad(prices[currency].name)} = ${currencyPricesFormatted[i]}`);
+    const priceLine = prices[currency]
+      ? `${rightPad(prices[currency].name)} = ${currencyPricesFormatted[i]}`
+      : `${rightPad(currency)} is such a shitcoin it doesn't even have a price`;
+    currenciesReply.push(priceLine);
   });
 
-  for(let i = 0; i < mofosNames.length; i++){
+  for (let i = 0; i < mofosNames.length; i++) {
     reply.push(`${mofosNames[i]} : ${mofosWinningsFormatted[i]}`);
   }
 
-  return '```'+currenciesReply.join('\n')+'\n---\n'+reply.join('\n')+'```';
+  return (
+    '```' + currenciesReply.join('\n') + '\n---\n' + reply.join('\n') + '```'
+  );
 }
 
 function howMuchDidTheMofosOwn(prices) {
@@ -81,27 +94,37 @@ function howMuchDidTheMofosOwn(prices) {
     const balance = transactions.reduce((memo, transaction) => {
       const { currency, type, volume, rate } = transaction;
       const factor = type === 'buy' ? 1 : -1;
-      memo[currency] = (memo[currency] || 0) + (factor * volume);
+      memo[currency] = (memo[currency] || 0) + factor * volume;
       return memo;
     }, {});
 
-    const formattedAmounts = accounting.formatColumn(Object.values(balance), '', 8);
-    const lines = Object.keys(balance).map((currency, i) => `  ${rightPad(prices[currency].name)}: ${formattedAmounts[i].replace(/\.?0+$/, '')}`);
-    return `${name}:\n${lines.join('\n')}`
+    const formattedAmounts = accounting.formatColumn(
+      Object.values(balance),
+      '',
+      8,
+    );
+    const lines = Object.keys(balance).map(
+      (currency, i) =>
+        `  ${rightPad(prices[currency].name)}: ${formattedAmounts[i].replace(
+          /\.?0+$/,
+          '',
+        )}`,
+    );
+    return `${name}:\n${lines.join('\n')}`;
   });
 
-  return '```'+output.join('\n')+'```';
+  return '```' + output.join('\n') + '```';
 }
 
 module.exports = robot => {
-  robot.respond(/(money)/i, (msg) => {
+  robot.respond(/(money)/i, msg => {
     return getExchangeRates()
       .then(howMuchDidTheMofosWin)
       .then(reply => msg.send(reply))
       .catch(error => msg.send(error));
   });
 
-  robot.respond(/(balances)/i, (msg) => {
+  robot.respond(/(balances)/i, msg => {
     return getExchangeRates()
       .then(howMuchDidTheMofosOwn)
       .then(reply => msg.send(reply))

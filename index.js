@@ -3,7 +3,7 @@ const request = require('request');
 const accounting = require('accounting');
 
 const { SWAG_TRADE_CONFIG = 'config.json' } = process.env;
-const API_URL = 'https://api.coinmarketcap.com/v1/ticker/';
+const API_URL = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest';
 
 function rightPad(string, length = 3, char = ' ') {
   const padLength = Math.max(0, length - string.length);
@@ -12,16 +12,16 @@ function rightPad(string, length = 3, char = ' ') {
 
 function getExchangeRates() {
   return new Promise((resolve, reject) => {
-    request(API_URL, (error, { statusCode }, body) => {
+    request(API_URL, {headers: {'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY}}, (error, { statusCode }, body) => {
       if (error || statusCode !== 200) {
         throw error || new Error('Unknow error');
       }
       const allTheCoins = JSON.parse(body);
       const simplified = {};
-      allTheCoins.forEach(coin => {
-        simplified[coin.id] = {
+      allTheCoins.data.forEach(coin => {
+        simplified[coin.slug] = {
           name: coin.symbol,
-          price: parseFloat(coin.price_usd),
+          price: parseFloat(coin.quote.USD.price),
         };
       });
       resolve(simplified);
@@ -87,7 +87,7 @@ function howMuchDidTheMofosWin(prices) {
   );
 }
 
-function howMuchDidTheMofosOwn(prices) {
+function howMuchDidTheMofosOwn() {
   const mofos = JSON.parse(fs.readFileSync(SWAG_TRADE_CONFIG));
 
   const output = mofos.map(({ name, transactions }) => {
@@ -104,11 +104,13 @@ function howMuchDidTheMofosOwn(prices) {
       8,
     );
     const lines = Object.keys(balance).map(
-      (currency, i) =>
-        `  ${rightPad(prices[currency].name)}: ${formattedAmounts[i].replace(
+      (currency, i) => {
+        return `  ${rightPad(currency)}: ${formattedAmounts[i].replace(
           /\.?0+$/,
           '',
-        )}`,
+        )}`;
+      }
+        
     );
     return `${name}:\n${lines.join('\n')}`;
   });
@@ -125,9 +127,12 @@ module.exports = robot => {
   });
 
   robot.respond(/(balances)/i, msg => {
-    return getExchangeRates()
-      .then(howMuchDidTheMofosOwn)
-      .then(reply => msg.send(reply))
-      .catch(error => msg.send(error.message));
+    let message;
+    try {
+      message = howMuchDidTheMofosOwn();
+    } catch(err) {
+      message = err.message;
+    }
+    return msg.send(message);
   });
 };

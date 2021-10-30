@@ -134,12 +134,9 @@ module.exports = robot => {
   });
 
   robot.respond(/(balances)/i, msg => {
-    let message;
-    try {
-      message = howMuchDidTheMofosOwn();
-    } catch(err) {
-      message = err.message;
-    }
-    return msg.send(message);
+    return getExchangeRates()
+      .then(howMuchDidTheMofosOwn)
+      .then(reply => msg.send(reply))
+      .catch(error => msg.send(error.message));
   });
 };

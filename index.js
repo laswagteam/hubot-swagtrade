@@ -87,7 +87,7 @@ function howMuchDidTheMofosWin(prices) {
   );
 }
 
-function howMuchDidTheMofosOwn() {
+function howMuchDidTheMofosOwn(prices) {
   const mofos = JSON.parse(fs.readFileSync(SWAG_TRADE_CONFIG));
 
   const output = mofos.map(({ name, transactions }) => {
@@ -97,6 +97,13 @@ function howMuchDidTheMofosOwn() {
       memo[currency] = (memo[currency] || 0) + factor * volume;
       return memo;
     }, {});
+
+    const totalUSDBalance = Object.entries(balance).reduce(
+      (total, [currency, vol]) => {
+        if (prices[currency]) return total + (vol * prices[currency].price);
+        return total;
+      }, 0
+    );
 
     const formattedAmounts = accounting.formatColumn(
       Object.values(balance),
@@ -112,10 +119,10 @@ function howMuchDidTheMofosOwn() {
       }
         
     );
-    return `${name}:\n${lines.join('\n')}`;
+    return `${name}:\n${lines.join('\n')}\n  -------\n  Current USD value : ${accounting.formatMoney(totalUSDBalance)}`;
   });
 
-  return '```' + output.join('\n') + '```';
+  return '```' + output.join('\n\n') + '```';
 }
 
 module.exports = robot => {
